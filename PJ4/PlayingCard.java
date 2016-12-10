@@ -109,6 +109,20 @@ class Decks {
      */
     public Decks()
     {
+        numberDecks = 1;
+        originalDecks = new ArrayList<>();
+        for(int s = 0; s < 4;s++){
+            for(int r = 1; r <= 13; r++){
+                try{
+                Card card = new Card(s, r);
+                originalDecks.add(card);
+                }catch(PlayingCardException e){
+                 System.out.println(e.getMessage());
+                }
+            }
+        }
+        gameDecks=new ArrayList<>(originalDecks);
+
         // implement this method!
     }
 
@@ -122,7 +136,25 @@ class Decks {
      */
     public Decks(int n)
     {
+        numberDecks = n;
+        originalDecks = new ArrayList<>();
+        for(int i = 0; i < n ;i++){//creates n decks of playing cards
+         for(int s = 0; s < 4;s++){
+            for(int r = 1; r <= 13; r++){
+                try{
+                Card card = new Card(s, r);
+                originalDecks.add(card);
+                }catch(PlayingCardException e){
+                 System.out.println(e.getMessage());
+                 }
+            }
+          }
+
+        } 
+        gameDecks = new ArrayList<>(originalDecks);
+
         // implement this method!
+    
     }
 
 
@@ -149,8 +181,17 @@ class Decks {
      */
     public List<Card> deal(int numberCards) throws PlayingCardException
     {
+        if (numberCards > gameDecks.size()){
+            throw new PlayingCardException("Not enough cards to deal!");
+        }
+        
+        List<Card> cardsDealt = new ArrayList<>();
+        
+        for(int i = 0; i<numberCards; i++){
+            cardsDealt.add(gameDecks.remove(0));
+        }
         // implement this method!
-        return null;
+        return cardsDealt;
     }
 
     /**
@@ -158,6 +199,7 @@ class Decks {
      */
     public void reset()
     {
+        gameDecks = originalDecks;
         // implement this method!
     }
 
