@@ -48,10 +48,10 @@ public class VideoPoker {
     private static final int numberOfCards = 5;
 
     // default constant payout value and playerHand types
-    private static final int[] multipliers = {1, 2, 3, 5, 6, 9, 25, 50, 250};
+    private static final int[] multipliers = {1, 2, 3, 5, 6, 9, 25, 50, 250};//0,1,2,3,4,5,6,7,8
     private static final String[] goodHandTypes = {
         "Royal Pair", "Two Pairs", "Three of a Kind", "Straight", "Flush	",
-        "Full House", "Four of a Kind", "Straight Flush", "Royal Flush"};
+        "Full House", "Four of a Kind", "Straight Flush", "Royal Flush"};//0 = rp, 1= tp, 2= tok, 3=s,4=f,5=fh,6=fourofkind,7=sf, 8= rf
 
     // must use only one deck
     private final Decks oneDeck;
@@ -66,7 +66,6 @@ public class VideoPoker {
      */
     public VideoPoker() {
         this(startingBalance);
-
     }
 
     /**
@@ -98,7 +97,42 @@ public class VideoPoker {
      * This can be checked by testCheckHands() and main() method.
      */
     private void checkHands() {
+        List<Integer> sortedHand = new ArrayList<Integer>();
+        for (int i = 0; i < 5; i++) {
+            sortedHand.add(playerHand.get(i).getRank());
+	}
+	Collections.sort(sortedHand);
         
+        if (royalFlush(sortedHand)) {
+            System.out.println(goodHandTypes[8]);
+            playerBalance += (playerBet * multipliers[8]);
+        } else if (straightFlush(sortedHand)) {
+            System.out.println(goodHandTypes[7]);
+            playerBalance += (playerBet * multipliers[7]);
+        } else if (fourKind(sortedHand)) {
+            System.out.println(goodHandTypes[6]);
+            playerBalance += (playerBet * multipliers[6]);
+        } else if (fullhouse(sortedHand)) {
+            System.out.println(goodHandTypes[5]);
+            playerBalance += (playerBet * multipliers[5]);
+        } else if (flush()) {
+            System.out.println(goodHandTypes[4]);
+            playerBalance += (playerBet * multipliers[4]);
+        } else if (straight(sortedHand)) {
+            System.out.println(goodHandTypes[3]);
+            playerBalance += (playerBet * multipliers[3]);
+        } else if (threeKind(sortedHand)) {
+            System.out.println(goodHandTypes[2]);
+            playerBalance += (playerBet * multipliers[2]);
+        } else if (twoPair()) {
+            System.out.println(goodHandTypes[1]);
+            playerBalance += (playerBet * multipliers[1]);
+        } else if (jacksObetter()) {
+            System.out.println(goodHandTypes[0]);
+            playerBalance += (playerBet * multipliers[0]);
+        }else{
+            System.out.println("Sorry, you lost!");
+        }
         // implement this method!
     }
 
@@ -156,13 +190,12 @@ public class VideoPoker {
         return count == 2;
     }
 
-    private boolean threeKind() {
+    private boolean threeKind(List <Integer> a) {
         int count = 0;//counts how many matches there are
-        Arrays.sort(playerHand.toArray());
-        for (int i = playerHand.size(); i > 0; i--) {
-            for (int k = playerHand.size() - 1; i > 0; i--) {
-                int firstCard = playerHand.get(i).getRank();
-                if (firstCard == playerHand.get(k).getRank() && playerHand.get(k).getRank() == playerHand.get(k - 1).getRank()) {//if first card is equal to second and third
+        for (int i = a.size(); i > 0; i--) {
+            for (int k = a.size() - 1; i > 0; i--) {
+                int firstCard = a.get(i);
+                if (firstCard == a.get(k) && a.get(k) == a.get(k - 1)) {//if first card is equal to second and third
                     count++;
                 }
             }
@@ -171,11 +204,10 @@ public class VideoPoker {
 
     }
 
-    private boolean straight() {
+    private boolean straight(List <Integer> b) {
         int count = 0;
-        Arrays.sort(playerHand.toArray());
-        for (int i = 0; i < playerHand.size(); i++) {
-            if (playerHand.get(i).getRank() + 1 == playerHand.get(i + 1).getRank()) {
+        for (int i = 0; i < b.size(); i++) {
+            if (b.get(i) + 1 == b.get(i + 1)) {
                 count++;
             }
         }
@@ -192,26 +224,24 @@ public class VideoPoker {
         return count == 5;
     }
 
-    private boolean fullhouse() {
+    private boolean fullhouse(List <Integer> c) {
         int count = 0;
-        Arrays.sort(playerHand.toArray());
-        for (int i = 2; i < playerHand.size(); i++) {
-            if (threeKind() && playerHand.get(i).getRank() == playerHand.get(i + 1).getRank()) {
+        for (int i = 2; i < c.size(); i++) {
+            if (threeKind(c) && c.get(i) == c.get(i + 1)) {
                 count++;
             }
         }
         return count == 1;
     }
 
-    private boolean fourKind() {
+    private boolean fourKind(List <Integer> d) {
         int count = 0;
-        Arrays.sort(playerHand.toArray());
-        for (int i = playerHand.size(); i > 0; i--) {
-            for (int k = playerHand.size() - 1; i > 0; i--) {
-                int firstCard = playerHand.get(i).getRank();
-                int secCard = playerHand.get(k).getRank();
-                int thirdCard = playerHand.get(k - 1).getRank();
-                int fourthCard = playerHand.get(k - 2).getRank();
+        for (int i = d.size(); i > 0; i--) {
+            for (int k = d.size() - 1; i > 0; i--) {
+                int firstCard = d.get(i);
+                int secCard = d.get(k);
+                int thirdCard = d.get(k - 1);
+                int fourthCard = d.get(k - 2);
 
                 if (firstCard == secCard && secCard == thirdCard && thirdCard == fourthCard) {//if first card is equal to second and third and fourth
                     count++;
@@ -221,17 +251,16 @@ public class VideoPoker {
         return count == 1;
     }
 
-    private boolean straightFlush() {
-        return straight() && flush();
+    private boolean straightFlush(List <Integer> e) {
+        return straight(e) && flush();
     }
 
-    private boolean royalFlush() {
+    private boolean royalFlush(List <Integer> f) {
         int count = 0;
-        Arrays.sort(playerHand.toArray());
-        if (playerHand.get(0).getRank() == 1) {
+        if (f.get(0) == 1) {
             for (int i = 1; i < playerHand.size(); i++) {
-                if (playerHand.get(i).getRank() + 1 == playerHand.get(i + 1).getRank()) {
-                count++;
+                if (f.get(i) + 1 == f.get(i + 1)) {
+                    count++;
                 }
             }
         }
