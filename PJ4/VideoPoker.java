@@ -97,12 +97,12 @@ public class VideoPoker {
      * This can be checked by testCheckHands() and main() method.
      */
     private void checkHands() {
-        List<Integer> sortedHand = new ArrayList<Integer>();
-        for (int i = 0; i < 5; i++) {
+        List<Integer> sortedHand = new ArrayList<>();
+        for (int i = 0; i <= 4; i++) {//out of index error??
             sortedHand.add(playerHand.get(i).getRank());
-	}
-	Collections.sort(sortedHand);
-        
+        }
+        Collections.sort(sortedHand);
+
         if (royalFlush(sortedHand)) {
             System.out.println(goodHandTypes[8]);
             playerBalance += (playerBet * multipliers[8]);
@@ -130,7 +130,7 @@ public class VideoPoker {
         } else if (jacksObetter()) {
             System.out.println(goodHandTypes[0]);
             playerBalance += (playerBet * multipliers[0]);
-        }else{
+        } else {
             System.out.println("Sorry, you lost!");
         }
         // implement this method!
@@ -171,8 +171,8 @@ public class VideoPoker {
 
     private boolean twoPair() {
         int count = 0;//counts how many pairs there are
-        for (int i = playerHand.size(); i > 0; i--) {
-            for (int k = playerHand.size() - 1; i > 0; i--) {
+        for (int i = playerHand.size() - 1; i > 0; i--) {
+            for (int k = playerHand.size() - 1; k > 2; k--) {
                 int firstCard = playerHand.get(i).getRank();
                 if (firstCard == playerHand.get(k).getRank()) {
                     count++;
@@ -190,23 +190,20 @@ public class VideoPoker {
         return count == 2;
     }
 
-    private boolean threeKind(List <Integer> a) {
-        int count = 0;//counts how many matches there are
-        for (int i = a.size(); i > 0; i--) {
-            for (int k = a.size() - 1; i > 0; i--) {
-                int firstCard = a.get(i);
-                if (firstCard == a.get(k) && a.get(k) == a.get(k - 1)) {//if first card is equal to second and third
-                    count++;
-                }
+    private boolean threeKind(List<Integer> a) {
+        int count = 0;
+        for (int i = 0; i < playerHand.size() - 1; i++) {
+            if(a.get(i) == a.get(i+1)){
+                count ++;
             }
         }
-        return count == 1;
+        return count == 2;
 
     }
 
-    private boolean straight(List <Integer> b) {
+    private boolean straight(List<Integer> b) {
         int count = 0;
-        for (int i = 0; i < b.size(); i++) {
+        for (int i = 0; i < b.size() - 1; i++) {
             if (b.get(i) + 1 == b.get(i + 1)) {
                 count++;
             }
@@ -216,17 +213,17 @@ public class VideoPoker {
 
     private boolean flush() {
         int count = 0;
-        for (int i = 0; i < playerHand.size(); i++) {
+        for (int i = 0; i < playerHand.size() - 1; i++) {
             if (playerHand.get(i).getSuit() == playerHand.get(i + 1).getSuit()) {
                 count++;
             }
         }
-        return count == 5;
+        return count == 4;
     }
 
-    private boolean fullhouse(List <Integer> c) {
+    private boolean fullhouse(List<Integer> c) {
         int count = 0;
-        for (int i = 2; i < c.size(); i++) {
+        for (int i = 2; i < c.size() - 1; i++) {
             if (threeKind(c) && c.get(i) == c.get(i + 1)) {
                 count++;
             }
@@ -234,31 +231,25 @@ public class VideoPoker {
         return count == 1;
     }
 
-    private boolean fourKind(List <Integer> d) {
+    private boolean fourKind(List<Integer> d) {
         int count = 0;
-        for (int i = d.size(); i > 0; i--) {
-            for (int k = d.size() - 1; i > 0; i--) {
-                int firstCard = d.get(i);
-                int secCard = d.get(k);
-                int thirdCard = d.get(k - 1);
-                int fourthCard = d.get(k - 2);
-
-                if (firstCard == secCard && secCard == thirdCard && thirdCard == fourthCard) {//if first card is equal to second and third and fourth
-                    count++;
-                }
+        for (int i = 0; i < playerHand.size() - 1; i++) {
+            if(d.get(i) == d.get(i+1)){
+                count ++;
             }
         }
-        return count == 1;
+        return count == 3;
     }
 
-    private boolean straightFlush(List <Integer> e) {
+    private boolean straightFlush(List<Integer> e) {
         return straight(e) && flush();
     }
 
-    private boolean royalFlush(List <Integer> f) {
+    private boolean royalFlush(List<Integer> f) {
         int count = 0;
         if (f.get(0) == 1) {
-            for (int i = 1; i < playerHand.size(); i++) {
+            count++;
+            for (int i = 1; i < playerHand.size() - 1; i++) {
                 if (f.get(i) + 1 == f.get(i + 1)) {
                     count++;
                 }
