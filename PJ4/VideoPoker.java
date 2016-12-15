@@ -124,10 +124,10 @@ public class VideoPoker {
         } else if (threeKind(sortedHand)) {
             System.out.println(goodHandTypes[2]);
             playerBalance += (playerBet * multipliers[2]);
-        } else if (twoPair()) {
+        } else if (twoPair(sortedHand)) {
             System.out.println(goodHandTypes[1]);
             playerBalance += (playerBet * multipliers[1]);
-        } else if (jacksObetter()) {
+        } else if (royalPair()) {
             System.out.println(goodHandTypes[0]);
             playerBalance += (playerBet * multipliers[0]);
         } else {
@@ -142,7 +142,7 @@ public class VideoPoker {
      *
      ************************************************
      */
-    private boolean jacksObetter() {
+    private boolean royalPair() {
         int jack = 0;
         int queen = 0;
         int king = 0;
@@ -169,36 +169,37 @@ public class VideoPoker {
         return (ace == 2 || jack == 2 || queen == 2 || king == 2);
     }
 
-    private boolean twoPair() {
+    private boolean twoPair(List <Integer> g) {
         int count = 0;//counts how many pairs there are
-        for (int i = playerHand.size() - 1; i > 0; i--) {
-            for (int k = playerHand.size() - 1; k > 2; k--) {
-                int firstCard = playerHand.get(i).getRank();
-                if (firstCard == playerHand.get(k).getRank()) {
+        for (int i = g.size() - 1; i > 0; i--) {
+            for (int k = g.size() - 1; k > 2; k--) {
+                int firstCard = g.get(i);
+                if (firstCard == g.get(k)) {
                     count++;
                     i -= 2;
-                } else if (firstCard == playerHand.get(k - 1).getRank()) {
+                } else if (firstCard == g.get(k - 1)) {
                     count++;
-                } else if (firstCard == playerHand.get(k - 2).getRank()) {
+                } else if (firstCard == g.get(k - 2)) {
                     count++;
-                } else if (firstCard == playerHand.get(k - 3).getRank()) {
+                } else if (firstCard == g.get(k - 3)) {
                     count++;
                 }
             }
         }
-
         return count == 2;
     }
 
     private boolean threeKind(List<Integer> a) {
-        int count = 0;
+       int count = 0;
         for (int i = 0; i < playerHand.size() - 1; i++) {
-            if(a.get(i) == a.get(i+1)){
-                count ++;
+            if(a.get(i) != a.get(i+1)){
+                break;
+            }else{
+                count++;
             }
         }
+        System.out.println(count);
         return count == 2;
-
     }
 
     private boolean straight(List<Integer> b) {
@@ -223,7 +224,7 @@ public class VideoPoker {
 
     private boolean fullhouse(List<Integer> c) {
         int count = 0;
-        for (int i = 2; i < c.size() - 1; i++) {
+        for (int i = 3; i < c.size() - 1; i++) {
             if (threeKind(c) && c.get(i) == c.get(i + 1)) {
                 count++;
             }
@@ -234,10 +235,13 @@ public class VideoPoker {
     private boolean fourKind(List<Integer> d) {
         int count = 0;
         for (int i = 0; i < playerHand.size() - 1; i++) {
-            if(d.get(i) == d.get(i+1)){
-                count ++;
+            if(d.get(i) != d.get(i+1)){
+                break;
+            }else{
+                count++;
             }
         }
+        System.out.println(count);
         return count == 3;
     }
 
