@@ -1,7 +1,9 @@
 package PJ4;
 
+import com.sun.javafx.scene.EnteredExitedHandler;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.CompareGenerator;
 import java.util.*;
+import javax.sound.sampled.FloatControl;
 
 /*
  * Ref: http://en.wikipedia.org/wiki/Video_poker
@@ -44,7 +46,7 @@ import java.util.*;
 public class VideoPoker {
 
     // default constant values
-    private static final int startingBalance = 100;
+    private static final int startingBalance = 1000;
     private static final int numberOfCards = 5;
 
     // default constant payout value and playerHand types
@@ -61,11 +63,14 @@ public class VideoPoker {
     private int playerBalance;
     private int playerBet;
 
+    Scanner in = new Scanner(System.in);
+
     /**
      * default constructor, set balance = startingBalance
      */
     public VideoPoker() {
         this(startingBalance);
+        playerBet = 0;
     }
 
     /**
@@ -172,9 +177,9 @@ public class VideoPoker {
     private boolean twoPair(List<Integer> g) {
         int count = 0;//counts how many pairs there are
         for (int i = 0; i < g.size() - 1; i++) {
-            if(g.get(i) == g.get(i+1)){
-                count ++;
-                i+=2;
+            if (g.get(i) == g.get(i + 1)) {
+                count++;
+                i += 2;
             }
         }
         return count == 2;
@@ -251,6 +256,35 @@ public class VideoPoker {
         return count == 4;
     }
 
+    private void replaceHand() {
+        Scanner input = new Scanner(System.in);
+        System.out.print("Enter positions of cards to keep (e.g. 1 4 5 ): ");
+        List<Card> keptCards = new ArrayList<>();
+        List<Card> newCards = new ArrayList<>();
+        String tokens = input.nextLine();
+        Scanner inChar = new Scanner(tokens).useDelimiter("\\s*");
+
+        while (inChar.hasNextInt()) {
+            int position = inChar.nextInt();
+            if (position >= 1) {
+                keptCards.add(playerHand.get(position - 1));
+            } else {
+                break;
+            }
+        }
+
+        for (int count = 0; count < playerHand.size() - keptCards.size(); count++) {
+            try {
+                newCards = oneDeck.deal(count + 1);
+            } catch (PlayingCardException e) {
+                e.getMessage();
+            }
+        }
+        keptCards.addAll(newCards);
+        playerHand = keptCards;
+        System.out.println(playerHand);
+    }
+
     public void play() {
         /**
          * The main algorithm for single player poker game
@@ -258,16 +292,78 @@ public class VideoPoker {
          * Steps: showPayoutTable()
          *
          * ++ show balance, get bet verify bet value, update balance reset deck,
-         * shuffle deck, deal cards and display cards ask for positions of cards
-         * to keep get positions in one input line update cards check hands,
-         * display proper messages update balance if there is a payout if
+         * shuffle deck, deal cards and display cards, ask for positions of
+         * cards to keep get positions in one input line update cards check
+         * hands, display proper messages update balance if there is a payout if
          * balance = O: end of program else ask if the player wants to play a
          * new game if the answer is "no" : end of program else :
-         * showPayoutTable() if user wants to see it goto ++
+         * showPayoutTable() if user wants to see it go to ++
          */
+        showPayoutTable();
+        boolean continueToPlay = true;
+        while (continueToPlay) {
+            System.out.println("-----------------------------------");
+            System.out.println("Balance: $" + playerBalance);
+            boolean placeBet = true;
+            //place bet
+            while (placeBet) {
+                System.out.print("Enter bet: $");
+                playerBet += in.nextInt();            
+                if (playerBalance >= playerBet && playerBet >= 0) {
+                    playerBalance -= playerBet;
+                    placeBet = false;
+                } else {//when player bet is greater than balance
+                    System.out.println("You don't have enough money. Try a different bet.");
+                    playerBet -= playerBet;
+                }
+            }
+            //reset deck and shuffle
+            oneDeck.reset();
+            oneDeck.shuffle();
 
-        // implement this method!
+            //deal new player hand
+            playerHand = new ArrayList<>();
+            try {
+                playerHand = oneDeck.deal(numberOfCards);
+            } catch (PlayingCardException e) {
+                e.getMessage();
+            }
+            //print out current hand
+            System.out.println(playerHand);
+            //ask for positions to keep and update card hand
+            replaceHand();
+            //check hands
+            checkHands();
+            
+            System.out.println("Your updated balance is: $" + playerBalance);
+
+            //end game
+            if (playerBalance == 0) {
+                System.out.println("Your balance is $0. Goodbye!");
+                continueToPlay = false;
+                //otherwise ask if want to play new game
+            } else {
+                //show remaining balance
+                System.out.println("\n\nYour balance: $" + playerBalance + ", one more game (y or n)");
+                String yorn = in.next();
+                if (yorn.equals("n")) {
+                    continueToPlay = false;
+                } else if (yorn.equals("y")) {
+                    System.out.println("\n\nWant to see payout table? (y or n)");
+                    String p = in.next();
+                    if (p.equals("y")) {
+                        showPayoutTable();
+                    }
+                } else {
+                    System.out.println("Wrong input. Ending game now.");
+                    continueToPlay = false;
+                }
+            }
+
+        }
+
     }
+    // implement this method!
 
     /**
      * ***********************************************
